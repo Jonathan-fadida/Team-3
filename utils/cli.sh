@@ -26,6 +26,13 @@ for ((i=0; i<${#public_subnet_cidr_blocks[@]}; i++)); do
     
     # Associate the public route table with the public subnet
     aws ec2 associate-route-table --subnet-id $subnet_id --route-table-id $public_route_table_id
+    
+    # Store the public subnet ID in a variable
+    if [ $i -eq 0 ]; then
+        public_subnet_id1=$subnet_id
+    else
+        public_subnet_id2=$subnet_id
+    fi
 done
 
 # Create Private Subnets and configure route tables with NAT Gateway
@@ -39,7 +46,11 @@ for ((i=0; i<${#private_subnet_cidr_blocks[@]}; i++)); do
     eip_allocation_id=$(aws ec2 allocate-address --query 'AllocationId' --output text)
     
     # Create the NAT Gateway in one of the public subnets
-    nat_gateway_id=$(aws ec2 create-nat-gateway --subnet-id <public-subnet-id> --allocation-id $eip_allocation_id --query 'NatGateway.NatGatewayId' --output text)
+    if [ $i -eq 0 ]; then
+        nat_gateway_id=$(aws ec2 create-nat-gateway --subnet-id $public_subnet_id1 --allocation-id $eip_allocation_id --query 'NatGateway.NatGatewayId' --output text)
+    else
+        nat_gateway_id=$(aws ec2 create-nat-gateway --subnet-id $public_subnet_id2 --allocation-id $eip_allocation_id --query 'NatGateway.NatGatewayId' --output text)
+    fi
     
     # Add a route to the NAT Gateway for private subnets
     aws ec2 create-route --route-table-id $private_route_table_id --destination-cidr-block "0.0.0.0/0" --gateway-id $nat_gateway_id
@@ -50,3 +61,5 @@ done
 
 # Output VPC and Subnet IDs
 echo "VPC ID: $vpc_id"
+echo "Public Subnet ID 1: $public_subnet_id1"
+echo "Public Subnet ID 2: $public_subnet_id2"
