@@ -12,9 +12,9 @@ vpc_id=$(aws ec2 create-vpc --cidr-block $vpc_cidr_block --query 'Vpc.VpcId' --o
 aws ec2 modify-vpc-attribute --vpc-id $vpc_id --enable-dns-support "{\"Value\":true}"
 aws ec2 modify-vpc-attribute --vpc-id $vpc_id --enable-dns-hostnames "{\"Value\":true}"
 
-# Create Public Subnets
-for cidr_block in "${public_subnet_cidr_blocks[@]}"; do
-    subnet_id=$(aws ec2 create-subnet --vpc-id $vpc_id --cidr-block $cidr_block --query 'Subnet.SubnetId' --output text)
+# Create Public Subnets and configure route tables
+for ((i=0; i<${#public_subnet_cidr_blocks[@]}; i++)); do
+    subnet_id=$(aws ec2 create-subnet --vpc-id $vpc_id --cidr-block ${public_subnet_cidr_blocks[i]} --query 'Subnet.SubnetId' --output text)
     
     # Create a public route table
     public_route_table_id=$(aws ec2 create-route-table --vpc-id $vpc_id --query 'RouteTable.RouteTableId' --output text)
@@ -28,16 +28,21 @@ for cidr_block in "${public_subnet_cidr_blocks[@]}"; do
     aws ec2 associate-route-table --subnet-id $subnet_id --route-table-id $public_route_table_id
 done
 
-# Create Private Subnets
-for cidr_block in "${private_subnet_cidr_blocks[@]}"; do
-    subnet_id=$(aws ec2 create-subnet --vpc-id $vpc_id --cidr-block $cidr_block --query 'Subnet.SubnetId' --output text)
+# Create Private Subnets and configure route tables with NAT Gateway
+for ((i=0; i<${#private_subnet_cidr_blocks[@]}; i++)); do
+    subnet_id=$(aws ec2 create-subnet --vpc-id $vpc_id --cidr-block ${private_subnet_cidr_blocks[i]} --query 'Subnet.SubnetId' --output text)
     
     # Create a private route table
     private_route_table_id=$(aws ec2 create-route-table --vpc-id $vpc_id --query 'RouteTable.RouteTableId' --output text)
     
-    # configure a NAT Gateway or NAT instance for private subnets to access the internet
-     nat_gateway_id=$(aws ec2 create-nat-gateway --subnet-id $subnet_id --allocation-id <your-eip-allocation-id> --query 'NatGateway.NatGatewayId' --output text)
-     aws ec2 create-route --route-table-id $private_route_table_id --destination-cidr-block "0.0.0.0/0" --gateway-id $nat_gateway_id
+    # Create an Elastic IP (EIP) for the NAT Gateway
+    eip_allocation_id=$(aws ec2 allocate-address --query 'AllocationId' --output text)
+    
+    # Create the NAT Gateway in one of the public subnets
+    nat_gateway_id=$(aws ec2 create-nat-gateway --subnet-id <public-subnet-id> --allocation-id $eip_allocation_id --query 'NatGateway.NatGatewayId' --output text)
+    
+    # Add a route to the NAT Gateway for private subnets
+    aws ec2 create-route --route-table-id $private_route_table_id --destination-cidr-block "0.0.0.0/0" --gateway-id $nat_gateway_id
     
     # Associate the private route table with the private subnet
     aws ec2 associate-route-table --subnet-id $subnet_id --route-table-id $private_route_table_id
