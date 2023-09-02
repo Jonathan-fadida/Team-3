@@ -35,10 +35,9 @@ for cidr_block in "${private_subnet_cidr_blocks[@]}"; do
     # Create a private route table
     private_route_table_id=$(aws ec2 create-route-table --vpc-id $vpc_id --query 'RouteTable.RouteTableId' --output text)
     
-    # Optionally, configure a NAT Gateway or NAT instance for private subnets to access the internet
-    # Example:
-    # nat_gateway_id=$(aws ec2 create-nat-gateway --subnet-id $subnet_id --allocation-id <your-eip-allocation-id> --query 'NatGateway.NatGatewayId' --output text)
-    # aws ec2 create-route --route-table-id $private_route_table_id --destination-cidr-block "0.0.0.0/0" --gateway-id $nat_gateway_id
+    # configure a NAT Gateway or NAT instance for private subnets to access the internet
+     nat_gateway_id=$(aws ec2 create-nat-gateway --subnet-id $subnet_id --allocation-id <your-eip-allocation-id> --query 'NatGateway.NatGatewayId' --output text)
+     aws ec2 create-route --route-table-id $private_route_table_id --destination-cidr-block "0.0.0.0/0" --gateway-id $nat_gateway_id
     
     # Associate the private route table with the private subnet
     aws ec2 associate-route-table --subnet-id $subnet_id --route-table-id $private_route_table_id
