@@ -25,7 +25,9 @@ def modulus(x: int, y: int) -> int:
     return x % y
 
     
-
+#This function checks if a given number result is prime. 
+#It iterates from 2 to half of result and checks for divisibility.
+#If it's divisible by any number other than 1 and itself, it's not prime; otherwise, it's prime.
 def is_prime (result):
 
     # If given number is greater than 1
@@ -42,8 +44,7 @@ def is_prime (result):
     else:
         print(result, "is not a prime number")
 
-
-
+#This function determines whether a given number x is even or odd and returns a string accordingly.
 
 def is_odd_even(x:int) :
     if x % 2 == 0 :
@@ -51,13 +52,13 @@ def is_odd_even(x:int) :
     else :  
         return " Is Odd "
 
-
+#This function checks if a given number x is divisible by 5 and prints the result.
 def is_div_by_five(x:int) :
     if  x % 5 == 0 : 
         print("Is divisable by 5 ") 
     else : 
         print("not divisable by 5")    
-
+#This function displays a menu of options for the calculator, takes user input for the choice, and returns the lowercase choice.
 def menu() :
     print("Menu:")
     print("a. Add")
@@ -73,7 +74,7 @@ def menu() :
     return choice
 
 
-
+#This function prompts the user to enter a number and handles invalid inputs by continuously prompting until a valid integer is provided.
 def prompt_number():
     while True:
         try:
@@ -85,7 +86,9 @@ def prompt_number():
 #choice = menu()
 #print( "   " + choice)
 
-
+#This is the main function that drives the program's execution.
+#It repeatedly displays the menu, validates the user's choice, and performs the selected operation.
+#It also calls the additional functions to display the properties of the result.
 def my_main(): 
     while True:
         choice = menu()
