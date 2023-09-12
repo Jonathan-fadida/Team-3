@@ -131,6 +131,8 @@ SecurityGroup(){
 #make a key 
  aws ec2 create-key-pair --key-name cli-keyPair --query 'KeyMaterial' --output text > cli-keyPair.pem
 
+
+
 #run ect ubuntu instance 
  aws ec2 run-instances --image-id ami-03f65b8614a860c29 --instance-type t2.micro --count 1 --subnet-id subnet-00969dcb2bd7c3f82 --security-group-ids sg-06ef357ea7e4b5439 --associate-public-ip-address --key-name cli-keyPair
 
@@ -140,3 +142,4 @@ aws ec2 create-tags --resources i-0b0b4ade1bd767c32 --tags Key=Name,Value=my-web
 
 
 
+aws ec2 associate-address --instance-id INSTANCE_ID --allocation-id ALLOCATION_ID
