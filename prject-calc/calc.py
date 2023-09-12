@@ -1,23 +1,29 @@
 
 
-
-def add(x:int,y:int)->int :
+# Function to add two integers and return the result
+def add(x: int, y: int) -> int:
     return x + y
 
-def subtract(x:int,y:int)->int :
+# Function to subtract y from x and return the result
+def subtract(x: int, y: int) -> int:
     return x - y
-def multiply(x:int,y:int)->int :
+
+# Function to multiply two integers and return the result
+def multiply(x: int, y: int) -> int:
     return x * y
-def divide(x:int,y:int)->int :
+
+# Function to divide x by y and return the result as a float
+def divide(x: int, y: int) -> float:
     return x / y
 
-
-def power_of(x:int,y:int)->int :
+# Function to calculate x raised to the power of y and return the result
+def power_of(x: int, y: int) -> int:
     return x ** y
-     
-def modulus(x:int,y:int)->int :
+
+# Function to calculate the modulus of x divided by y and return the result
+def modulus(x: int, y: int) -> int:
     return x % y
-    
+
     
 
 def is_prime (result):
